@@ -1,0 +1,400 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% block title %} Accueil {% endblock title %}
+
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+    <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid black;
+    }
+    .chargecell{
+        width: 100%;
+        border:none;
+        padding: 8px 8px 8px 8px;
+        text-align: center;
+        size: 1em;
+        height: 100%;
+    }
+
+    th{
+      min-width: 45px;
+      writing-mode: vertical-rl;
+      text-align: center;
+      text-orientation: sideways;
+      transform: rotate(180deg);
+      font-size: 1em;
+      padding: 3px 3px 3px 3px;
+    }
+
+    </style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header pb-6" style="background-color:rebeccapurple">
+      <div class="container-fluid">
+        <div class="header-body">
+          <!-- Card stats -->
+          <div class="row" style="width: auto">
+            <div class="col-xl-3 col-md-6">
+              <div class="card card-stats">
+                <!-- Card body -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title text-uppercase font-weight-bold mb-0">WELCOME {{user.username }}</h5>
+                    </div>
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-gradient-info text-white rounded-circle shadow">
+                        <i class="fa fa-user"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-sm" style="font-size: 1rem">
+                     {{ me.entity.name }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% if not me %}
+    <div class="card card-stats">
+                <!-- Card body -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-auto">
+                      <div class="icon icon-shape text-white rounded-circle shadow" style="background-color: rebeccapurple">
+                        <i class="fa fa-tasks"></i>
+                      </div>
+                    </div>
+                      <div class="col">
+                      <h3 class="card-title text-uppercase font-weight-bold mb-0">Choix de l'entité</h3>
+                    </div>
+                  </div>
+                    <br>
+                   <div class="media align-items-center">
+                      <a href="#" class="rounded-circle mr-3">
+                       <i class="fa fa-info-circle fa-2x"></i>
+                      </a>
+                      <div class="media-body">
+                        <span class="name mb-0 text-sm">Avant tout nous souhaitons connaitre l'entité à laquelle vous appartenez. Veuillez donc remplir ce formulaire</span>
+                      </div>
+                    </div>
+                    <br><br>
+                    <div class="form-group">
+             <form role="form" class="form-group" method="post" action="{% url 'home' %}">
+            {% csrf_token %}
+            Choisir une Entité :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="ni ni-email-83"></i></span>
+                  </div>
+                        <select name="myentity" class="select2-container--focus">{% for entite in entity %}
+                              <option value="{{ entite.id }}"> {{ entite.name }}</option>
+                          {% endfor %}
+                        </select>
+                </div>
+              </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-outline-danger mt-4">Choisir mon entité</button>
+              </div>
+            </form>
+                    </div>
+                </div>
+</div>
+{% else %}
+<div class="card card-stats">
+                <!-- Card body -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-auto">
+                      <div class="icon icon-shape text-white rounded-circle shadow" style="background-color: rebeccapurple">
+                        <i class="fa fa-tasks"></i>
+                      </div>
+                    </div>
+                      <div class="col">
+                      <h3 class="card-title text-uppercase font-weight-bold mb-0">CONSULTATION DES CHARGES</h3>
+                    </div>
+                  </div>
+                    <br>
+                   <div class="media align-items-center">
+                      <a href="#" class="rounded-circle mr-3">
+                       <i class="fa fa-info-circle fa-2x"></i>
+                      </a>
+                      <div class="media-body">
+                        <span class="name mb-0 text-sm">Dans cet espace vous pouvez choisir la periode à laquelle vous allez consulter et modifier vos charges.</span>
+                      </div>
+                    </div>
+                    <div class="media align-items-center">
+                      <a href="#" class="rounded-circle mr-3">
+                       <i class="fa fa-exclamation-triangle text-warning fa-2x"></i>
+                      </a>
+                      <div class="media-body">
+                        <span class="name mb-0 text-sm">Les charges sont des nombres decimaux avec deux chiffres maximum à la partie décimale.</span>
+                      </div>
+                    </div>
+                </div>
+</div>
+    <br>
+    <!-- Page content -->
+   <div class="container">
+  <form method="POST" action="{% url 'home' %}" class="justify-content-center">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="annee" class="form-control-label">Année :</label>
+          <input type="number" id="annee" name="annee" class="form-control" value="2023" required>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="mois1" class="form-control-label">Premier mois :</label>
+        <select id="mois1" name="mois1" class="form-control">
+          <option value="1"{% if request.POST.mois1 == '1' %} selected{% endif %}>Janvier</option>
+            <option value="2"{% if request.POST.mois1 == '2' %} selected{% endif %}>Février</option>
+            <option value="3"{% if request.POST.mois1 == '3' %} selected{% endif %}>Mars</option>
+            <option value="4"{% if request.POST.mois1 == '4' %} selected{% endif %}>Avril</option>
+            <option value="5"{% if request.POST.mois1 == '5' %} selected{% endif %}>Mai</option>
+            <option value="6"{% if request.POST.mois1 == '6' %} selected{% endif %}>Juin</option>
+            <option value="7"{% if request.POST.mois1 == '7' %} selected{% endif %}>Juillet</option>
+            <option value="8"{% if request.POST.mois1 == '8' %} selected{% endif %}>Août</option>
+            <option value="9"{% if request.POST.mois1 == '9' %} selected{% endif %}>Septembre</option>
+            <option value="10"{% if request.POST.mois1 == '10' %} selected{% endif %}>Octobre</option>
+            <option value="11"{% if request.POST.mois1 == '11' %} selected{% endif %}>Novembre</option>
+            <option value="12"{% if request.POST.mois1 == '12' %} selected{% endif %}>Décembre</option>
+        </select>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="mois2" class="form-control-label">Dernier mois :</label>
+          <select id="mois2" name="mois2" class="form-control">
+            <option value="1"{% if request.POST.mois2 == '1' %} selected{% endif %}>Janvier</option>
+            <option value="2"{% if request.POST.mois2 == '2' %} selected{% endif %}>Février</option>
+            <option value="3"{% if request.POST.mois2 == '3' %} selected{% endif %}>Mars</option>
+            <option value="4"{% if request.POST.mois2 == '4' %} selected{% endif %}>Avril</option>
+            <option value="5"{% if request.POST.mois2 == '5' %} selected{% endif %}>Mai</option>
+            <option value="6"{% if request.POST.mois2 == '6' %} selected{% endif %}>Juin</option>
+            <option value="7"{% if request.POST.mois2 == '7' %} selected{% endif %}>Juillet</option>
+            <option value="8"{% if request.POST.mois2 == '8' %} selected{% endif %}>Août</option>
+            <option value="9"{% if request.POST.mois2 == '9' %} selected{% endif %}>Septembre</option>
+            <option value="10"{% if request.POST.mois2 == '10' %} selected{% endif %}>Octobre</option>
+            <option value="11"{% if request.POST.mois2 == '11' %} selected{% endif %}>Novembre</option>
+            <option value="12"{% if request.POST.mois2 == '12' %} selected{% endif %}>Décembre</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <button type="submit" class="btn btn-primary text-white btn-block mt-4" style="background-color: rebeccapurple">Soumettre</button>
+      </div>
+    </div>
+  </form>
+</div>
+<br><br><br><br>
+{% if charges %}
+<div>
+    <div class="container-fluid ml--10 " >
+{% if semaines %}
+<div class="container">
+<table style="max-width: 100px">
+    <thead>
+        <tr>
+            <th class="">ACTIVITES</th>
+            {% for semaine in semaines %}
+            <th size="3" class="">Semaine {{ semaine.number }} Date: {{ semaine.start|date:"d/m/Y" }}</th>
+            {% endfor %}
+            <th class="">Total sur Les Activités</th>
+        </tr>
+    </thead>
+    <tbody>
+<form action="{% url 'home' %}" method="post">
+    {% csrf_token %}
+            {% for activite in activites %}
+            <tr>
+                <td>
+                {{ activite.activity.name }}
+                </td>
+                {% for semaine in semaines %}
+                <td {% if semaine.start in semCloses %}  style="background-color: grey;"  {% endif %} {% if semaine.start in autoCloses %}   style="background-color: grey;"  {% endif %} >
+                {% for charge in charges %}
+                    {% if charge.code_activity.id == activite.activity.id and charge.charge and charge.debut == semaine.debut %}
+                    <input type="text"  class="chargecell input-group-prepend" value="{{ charge.charge }}" name="{{ charge.id }}"  {% if charge.id_semaine.start in autoCloses %} style="background-color: grey;"  readonly="{{ charge.charge }}" {% endif %}  >
+                    {% endif %}
+                {% endfor %}
+                </td>
+                {% endfor %}
+                    <td>
+                        {{ activite.total }}
+                    </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>TOTAUX</td>
+                {% for total in totaux %}
+                    <td {% if total > 5 and total < 6 %} style="background-color: orange; color: #FFFFFF" {% elif total >= 6.1 and total < 7 %} style="background-color: red; color: #FFFFFF" {% endif %} > {% if total <= 7 %} {{ total }} {% else %}<button type="button" class="btn" data-toggle="modal" data-target="#confirmationModal3">&times;</button> {% endif %}</td>
+                {% endfor %}
+            <td>/</td>
+
+            <div class="modal fade" id="confirmationModal3" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="confirmationModalLabel">Erreur de Semaine</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					Une des valeurs rentrées pour la charge cette semaine fait en sorte que vous
+                    dépassiez les 7 jours hommes prévus pour la semaine en question. Veuillez corrger
+                    svp.
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-danger" data-dismiss="modal">Fermer</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+            </tr>
+             <div class="text-center" style="transform: translateY(600px)" >
+                <button type="submit" class="btn btn-outline-info mt-4" data-toggle="modal" data-target="#confirmationModal2">Valider les modifications</button>
+             </div>
+             <div class="text-center" style="transform: translateY(600px)" >
+                <a href="{% url 'download' %}" class="btn btn-outline-success mt-4"> Télécharger le fichier Excel </a>
+             </div>
+            <div class="modal fade" id="confirmationModal2" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel2" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="confirmationModalLabel2">Confirmation requise</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					Voulez-vous vraiment effectuer cette opération ?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Confirmer</button>
+				</div>
+			</div>
+		</div>
+	</div>
+    </form>
+    </tbody>
+</table>
+    </div>
+
+      </div><br><br>
+{% endif %}
+</div>
+{% elif semaines %}
+    <div class="row" style="transform: translateX(100px)">
+            <div class="col-xl-10" style="width: 400px;">
+              <div class="card card-stats" style="height: 200px; " >
+                <!-- Card body -->
+                <div class="card-body">
+                    <div class="col-auto">
+                      <div class="icon icon-shape bg-gradient-warning text-white rounded-circle shadow">
+                        <i class="fa fa-exclamation-triangle"></i>
+                      </div>
+                    </div>
+                  <div class="row">
+                    <div class="col">
+                      <h5 class="card-title font-weight-bold mb-0" style="text-align: center; transform: translateY(-50px); font-size:  1.4rem; ">Désolé {{user.username.upper }}</h5>
+                    </div>
+                  </div>
+                  <p class="mt-3 mb-0" style="text-align: center; font-size: 1.3rem; transform: translateY(-30px)">
+                      Il se pourrait que vous n'ayez pas de charge pour le moment ! <br>
+                      C'est pas grave vous avez la possibilité d'en ajouter <a class="alert-link" href="{% url 'map' %}"><strong class="bold">ici.</strong></a>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+
+            </div>
+            <div class="col-xl-3 col-md-6">
+
+            </div>
+          </div>
+{% endif %}
+    {% endif %}
+<br><br><br><br>
+{% include "includes/footer.html" %}
+{% endblock content %}
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+<!-- Liens vers les bibliothèques Bootstrap et jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+    <script>
+    // Récupérer les éléments de formulaire
+const mois1 = document.getElementById('mois1');
+const mois2 = document.getElementById('mois2');
+
+// Ajouter un écouteur d'événements de changement à la première sélection
+mois1.addEventListener('change', function() {
+  // Récupérer la valeur sélectionnée de la première sélection
+  const selectedValue = parseInt(mois1.value);
+
+  // Réinitialiser les options de la deuxième sélection
+  mois2.innerHTML = '';
+
+  // Ajouter une option par défaut
+  const defaultOption = document.createElement('option');
+  defaultOption.text = 'Sélectionnez un mois';
+  defaultOption.value = '';
+  mois2.add(defaultOption);
+
+  // Ajouter les options disponibles en fonction de la sélection de l'utilisateur
+  for (let i = selectedValue + 1; i <= 12; i++) {
+    const option = document.createElement('option');
+    option.text = getMonthName(i);
+    option.value = i;
+    mois2.add(option);
+  }
+});
+
+// Fonction pour obtenir le nom du mois à partir de son numéro
+function getMonthName(monthNumber) {
+  const months = [
+    'Janvier',
+    'Février',
+    'Mars',
+    'Avril',
+    'Mai',
+    'Juin',
+    'Juillet',
+    'Août',
+    'Septembre',
+    'Octobre',
+    'Novembre',
+    'Décembre'
+  ];
+  return months[monthNumber - 1];
+}
+    </script>
+    <script>
+  var myModalEl = document.getElementById('exampleModal');
+  var myModal = new bootstrap.Modal(myModalEl);
+</script>
+{% endblock javascripts %}

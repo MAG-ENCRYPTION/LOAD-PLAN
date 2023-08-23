@@ -1,0 +1,36 @@
+{% extends 'layouts/base-fullscreen.html' %}
+
+{% block title %} Error 404 {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- Page content -->
+    <div class="container mt--8 pb-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+          <div class="card bg-secondary shadow border-0">
+            <div class="card-header bg-transparent pb-5">
+
+              <div class="text-muted text-center mt-2 mb-3">
+                Oups! Erreur 500
+              </div>
+
+              <div class="text-center mb-4">
+                Un problème est survenu lors du lancement du serveur ou lors de votre requête Contactez le support - <a href="/">support@cca-bank.com</a>.
+                  <br> Ou alors veuillez contacter le centre d'aide à l'adresse <a href="/">loadplanhelpcenter@gmail.com</a>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-3">
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}

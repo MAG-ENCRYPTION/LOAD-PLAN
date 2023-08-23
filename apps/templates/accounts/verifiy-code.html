@@ -1,0 +1,99 @@
+{% extends 'layouts/base-fullscreen.html' %}
+
+{% block title %} Confirmation mot de passe {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+{% if not pass  %}
+    <!-- Page content -->
+    <div class="container mt--8 pb-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+          <div class="card bg-secondary shadow border-0">
+            <div class="card-header bg-transparent pb-5">
+                <div class="card-header bg-transparent pb-5">
+              <div class="text-muted text-center mt-2 mb-3">
+                  <h3 class="title-decor">CODE DE CONFIRMATION</h3>
+              </div>
+                    <br>
+             {% if username %} <div class="text-success text-center mt-2 mb-3">
+                   <p> HELLO <strong class="bold">{{ username }}</strong> heureux de vous revoir </p>
+              </div>
+             {% endif %}
+            </div>
+           Veuillez entrer votre code de confirmation
+                <br><br>
+              <form method="POST" action="{% url 'confirm' %}">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                  <div class="input-group input-group-alternative">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="fa fa-compass"></i></span>
+                    </div>
+                      <input style="width: 85%" type="number" name="code" placeholder="CODE DE CONFIRMATION">
+                  </div>
+                </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-primary my-4">Verification</button>
+                </div>
+              </form>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% else %}
+    <div class="container mt--8 pb-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+          <div class="card bg-secondary shadow border-0">
+            <div class="card-header bg-transparent pb-5">
+                <div class="card-header bg-transparent pb-5">
+              <div class="text-muted text-center mt-2 mb-3">
+                NOUVEAU MOT DE PASSE
+              </div>
+            </div>
+           Veuillez entrer votre nouveau mot de passe et confirmer le svp :
+                <br><br>
+                <form method="POST" action="{% url 'validation' %}">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
+                      </div>
+                        <input style="width: 85%" type="password" placeholder="nouveau mot de passe" class="" name="password1">
+                    </div>
+                       <span class="text-danger">{{ pass_error }}</span>
+                  </div>
+
+
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
+                      </div>
+                      <input style="width: 85%" type="password" placeholder="confirmer le mot de passe" name="password2">
+                    </div>
+                      <span class="text-danger">{{ pass_error }}</span>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-primary my-4">Enregistrer</button>
+                </div>
+              </form>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endif %}
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}{% endblock javascripts %}

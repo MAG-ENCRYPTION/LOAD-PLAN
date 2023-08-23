@@ -1,0 +1,397 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Maps {% endblock title %}
+{% block stylesheets %}
+    <style>
+
+    /* Ajoutez cette classe CSS pour mettre en surbrillance le champ de saisie en rouge */
+.input-error {
+  border-color: #ff0000;
+}
+
+
+     .modal-content {
+    background-color: #f8f9fe;
+    border-radius: 10px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+  }
+
+  .modal-body {
+    padding: 2rem;
+  }
+
+  .heading {
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+    </style>
+{% endblock stylesheets %}
+{% block content %}
+
+<div class="card-body px-lg-5 py-lg-5">
+<div class="card-title">
+    <h2>Ajouter une Charge</h2>
+</div>
+            <form role="form" class="form-group" method="post" action="{% url 'map' %}">
+            {% csrf_token %}
+            Choisir une activite :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <select name="activity" id="">{% for act in acts %}
+                        {% if act.name not in ClosedProjetList %}
+                        <option value="{{ act.id }}">{{ act.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                    </select>
+                </div>
+              </div>
+            Choisir une Semaine :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-calendar-week"></i></span>
+                  </div>
+                  <select name="semaine" class="select2-container--focus">{% for semaine in semaines %}
+                        <option value="{{ semaine.id }}">Semaine {{ semaine.number}} {{ semaine.start|date:"d/m/Y" }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+              </div>
+            Definissez une charge en Jours Homme :
+            <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-user-clock"></i></span>
+                  </div>
+                    <label for="inputNumber">
+                        {% if error == 1 %} <p style="color: red">Valeur de charge incorrecte incorrecte</p>{% endif %}
+                    </label><input type="text" name="charge" class="form-control input-number" id="inputNumber" placeholder="0.0">
+                </div>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-outline-info mt-4" data-toggle="modal" data-target="#successModal">Ajouter une charge</button>
+              </div>
+            </form>
+          </div>
+
+    <div class="card-body px-lg-5 py-lg-5">
+
+<div class="card-title">
+    <h2>Ajouter une autre activité</h2>
+</div>
+            <form role="form" class="form-group" method="post" action="{% url 'map' %}">
+            {% csrf_token %}
+            Nom de l'activité :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <input type="text" name="nomact" class="form-control">
+                </div>
+              </div>
+            Description :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <input type="text" name="descriptioinact" class="form-control">
+                </div>
+              </div>
+            type :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <select name="typeact" id="" class="select2-container--focus">
+                        <option value="ras">Choisir le type de l'activité</option>
+                        <option value="projet">Projet</option>
+                        <option value="run">Run</option>
+                    </select>
+                </div>
+              </div>
+           Date de début :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <input type="date" id="date_debut" name="startact" class="form-control">
+                </div>
+              </div>
+            Date de fin :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <input type="date" id="date_fin" name="endact" class="form-control">
+                </div>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-outline-success mt-4" data-toggle="modal" data-target="#successModal">Ajouter une nouvelle Activité</button>
+              </div>
+            </form>
+          </div>
+{% if UserActs %}
+<div class="card-body px-lg-5 py-lg-5">
+<div class="card-title">
+    <h2>Retirer une Activité</h2>
+</div>
+            <form role="form" class="form-group" method="post" action="{% url 'map' %}">
+            {% csrf_token %}
+            Choisir une activite :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <select name="deleteactivity" id="">{% for act  in UserActs %}
+                        <option value="{{ act.id }}">{{ act.activity.name }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+              </div>
+              <div class="text-center">
+                <button type="button" class="btn btn-outline-danger mt-4" data-toggle="modal" data-target="#confirmationModal">Supprimer l'activité</button>
+              </div>
+            	<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="confirmationModalLabel">Confirmation requise</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					Voulez-vous vraiment supprimer cette activité ?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Confirmer</button>
+				</div>
+			</div>
+		</div>
+	</div>
+            </form>
+          </div>
+    {% endif %}
+
+    <div class="card-body px-lg-5 py-lg-5">
+<div class="card-title">
+    <h2>Cloture de Semaine</h2>
+</div>
+            <form role="form" id="my-form" class="form-group" method="post" action="{% url 'map' %}">
+            {% csrf_token %}
+            Semaine :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="ni ni-email-83"></i></span>
+                  </div>
+                        <select name="semaineclose" class="select2-container--focus">
+                        <option value="default">Choisir la semaine à clore</option>
+                        {% for semaine in semaines %}
+                        <option value="{{ semaine.id }}">Semaine {{ semaine.number}} {{ semaine.start|date:"d/m/Y" }}</option>
+                        {% endfor %}
+                        </select>
+                </div>
+              </div>
+            <div class="text-center">
+                <button type="button" class="btn btn-outline-danger mt-4" data-toggle="modal" data-target="#confirmationModalCLOSE">Fermer la semaine</button>
+              </div>
+            <!-- Modal de confirmation -->
+	<div class="modal fade" id="confirmationModalCLOSE" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="confirmationModalLabel">Confirmation requise</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					Voulez-vous vraiment effectuer cette opération ?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Confirmer</button>
+				</div>
+			</div>
+		</div>
+	</div>
+            </form>
+          </div>
+{% if userclotures %}
+    <div class="card-body px-lg-5 py-lg-5">
+<div class="card-title">
+    <h2>Réouvrir une Semaine</h2>
+</div>
+            <form role="form"  class="form-group" method="post" action="{% url 'map' %}">
+            {% csrf_token %}
+            Semaine close :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="ni ni-email-83"></i></span>
+                  </div>
+                        <select name="semaineouverte" class="select2-container--focus">{% for cloture in userclotures %}
+                              <option value="{{ cloture.id }}">Semaine {{ cloture.SemaineClose.number }} {{ cloture.SemaineClose.start|date:"d/m/Y" }}</option>
+                          {% endfor %}
+                        </select>
+                </div>
+              </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-outline-success mt-4" data-toggle="modal" data-target="#successModal">Ouvrir la semaine</button>
+              </div>
+            </form>
+          </div>
+{% endif %}
+
+    {% if user.is_staff %}
+        {% if projetclos %}
+<div class="card-body px-lg-5 py-lg-5">
+<div class="card-title">
+    <h2>Rouvrir un projet fermé</h2>
+</div>
+            <form role="form" class="form-group" method="post" action="{% url 'map' %}">
+            {% csrf_token %}
+            Choisir le projet à ouvrir :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <select name="closedprojet" id="">{% for projet in projetclos %}
+                        <option value="{{ projet.id }}">{{ projet.nomProjet }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+              </div>
+
+            Nouvelle date de fin du projet :
+            <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-calendar-week"></i></span>
+                  </div>
+                    <input name="datecloture" type="date" class="datepicker">
+                </div>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-outline-warning mt-4">Rouvrir le projet</button>
+              </div>
+            </form>
+          </div>
+{% endif %}
+
+        {% if acts %}
+<div class="card-body px-lg-5 py-lg-5">
+<div class="card-title">
+    <h2>Suspendre un projet</h2>
+</div>
+            <form role="form" class="form-group" method="post" action="{% url 'map' %}">
+            {% csrf_token %}
+            Choisir le projet à ouvrir :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <select name="waitingprojet" id="">{% for act in acts %}
+                        {% if act.type.lower == 'projet' %}
+                        <option value="{{ act.id }}">{{ act.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                    </select>
+                </div>
+              </div>
+
+            Nouvelle date de fin du projet :
+            <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-calendar-week"></i></span>
+                  </div>
+                    <input name="waitingdate" type="date" class="datepicker">
+                </div>
+            </div>
+
+            Motif de la suspension :
+            <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-calendar-week"></i></span>
+                  </div>
+                 <textarea name="motif" class="scroll-textarea swal2-textarea" id="" cols="50" rows="5"></textarea>
+                </div>
+            </div>
+
+              <div class="text-center">
+                <button type="submit" class="btn btn-outline-info mt-4">Suspendre le projet</button>
+              </div>
+            </form>
+          </div>
+        {% endif %}
+        {% if suspendus %}
+<div class="card-body px-lg-5 py-lg-5">
+<div class="card-title">
+    <h2>Rouvrir un projet suspendu</h2>
+</div>
+            <form role="form" class="form-group" method="post" action="{% url 'map' %}">
+            {% csrf_token %}
+            Choisir le projet à ouvrir :
+              <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-tasks"></i></span>
+                  </div>
+                    <select name="openedprojet" id="">{% for suspendu in suspendus %}
+                        <option value="{{ suspendu.id }}">{{ suspendu.nomProjet }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+              </div>
+
+            Nouvelle date de fin du projet :
+            <div class="form-group">
+                <div class="input-group input-group-merge input-group-alternative mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-calendar-week"></i></span>
+                  </div>
+                    <input name="newdatefinproject" type="date" class="datepicker">
+                </div>
+              </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-outline-success mt-4">Reouvrir le projet</button>
+              </div>
+            </form>
+          </div>
+            {% endif %}
+    {% endif %}
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+<script>
+		function updateEndDate() {
+			// Récupérer les valeurs des champs de date
+			var startDate = new Date(document.getElementById("date_debut").value);
+			var endDate = new Date(document.getElementById("date_fin").value);
+
+			// Vérifier si la date de début est supérieure à la date de fin
+			if (startDate > endDate) {
+				// Mettre à jour la date de fin avec la date de début
+				document.getElementById("date_fin").value = document.getElementById("date_debut").value;
+			}
+		}
+	</script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDTTfWur0PDbZWPr7Pmq8K3jiDp0_xUziI"></script>
+{% endblock javascripts %}
